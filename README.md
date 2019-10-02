@@ -108,6 +108,252 @@
   + 最大程度上解放了DOM操作
   + 它能让你更加的享受编程的乐趣
   + 是为了克服HTML在构建应用上的不足而设计的，Vue有很多特性：MVVM、双向数据绑定、组件化、渐进式vue
+  
+  
+## Vue实例
+
+- 每个vue应用都是通过Vue函数创建一个新的Vue实例开始的
+
+  ```javascript
+  const vm = new Vue({
+    //选项
+    el:
+    data:
+    methods:
+  })
+  ```
+
+- 当创建一个Vue实例时，可以传入一个选项对象。
+
+### el选项
+
+- 提供一个在页面上已存在的DOM元素作为Vue实例的挂载对象，可以是css选择器，也可以是一个HTMLElement实例。
+  - 不能作用到htm/body上
+  - 也可以通过实例.$mount()手动挂载
+
+### data选项
+
+- 响应式数据
+
+- 可以通过vm.$data访问原始的数据对象
+
+- Vue实例也代理了data对象上所有的属性，因此访问vm.a等价于访问vm.$data.a
+
+- 视图中绑定的数据必须是显式的初始化到data中
+
+  ```javascript
+  <div id="app"> {{ message }} </div>
+  const vm = new Vue({
+    el: '#app',
+    data: { #视图中绑定的成员只能显式的初始化到data中
+      message:'hello'
+    }
+  })
+  # 这种方式只能修改，不能动态添加
+  app.$data.message = 'haha'
+  ```
+
+  
+
+### methods选项
+
+- methods将被混入到Vue实例中，可以直接通过VM实例访问这些方法，或者在指令表达式中使用，方法中的this自动绑定为Vue实例
+
+- 注意，不应该使用箭头函数来定义methods函数（例如：plus: ( ) =>this.a++）。理由是箭头函数绑定了父级作用域的上下文，所以this将不会按照期望执行Vue实例，this.a将是undefined
+
+  ```javascript
+  <div id="app"> {{ message }} </div>
+  <button v-on:click="handleclick">点我</button>
+  const vm = new Vue({
+    el: '#app',
+    data: {  
+      message:'hello'
+    },
+      #注意：不要使用箭头函数 传统的函数
+      handleClick: function(){
+        window.alert(this.message)
+      }
+       # 推荐使用es6的对象属性函数简写方式
+      handleClick (){
+         window.alert(this.message)
+     }
+    }
+  })
+  ```
+
+  
+
+## 数据绑定
+
+### 文本
+
+- 数据绑定最常见的形式就是使用"Mustache"语法（双括号)的文本插值：
+
+  ```javascript
+  <span>{{ msg }}</span>
+  ```
+
+  Mustache标签将会被替代为对应数据对象上msg属性的值。无论何时，绑定的数据对象上msg属性发生了改变，插值处的内容都会更新。
+
+  
+
+### 一次性绑定
+
+- 通过使用v-once指令，你也能执行一次性的插值。
+
+- 当数据改变时，插值处的内容不会更新。但是请留心这会影响到该节点上所有的数据绑定
+
+  ```javascript
+  <span v-once>这个将不会改变：{{ msg }}</span>
+  ```
+
+### 输出HTML
+
+- 双大括号会将数据解释为普通文本，而非HTML代码。为了输出真正的HTML，你需要使用HTML指令：
+
+  ```javascript
+  # 转译输出 即rawHtml:'<h1>hello world</h1>'会在页面上直接输出<h1>hello world</h1>
+  <div>{{ rawHtml }}</div> 
+  #这个会把rawHtml:'<h1>hello world</h1>'变成h1大小的hello world，即渲染后的rawHtml
+  <div v-html="rawHtml"></div>
+  ```
+
+- 站点上的动态渲染的任意HTML可能会非常危险，因为很容易导致XSS攻击，所以只对可信的使用HTML插值，绝不要对用户提供的内容使用插值
+
+### 属性绑定
+
+- Mustache语法不能作用在HTML特性上，遇到这种情况应该使用`v-bind`指令:
+
+  ```javascript
+  # 这样写会报错，显示编译错误
+  <a href="/todos?id={{ item.id }}">{{ item.title }}</a>
+  # v-bind只能用于属性，它的值是一个Javascript表达式，和{{}}里面的语法一致
+  # 唯一的区别是：{{}}用于标签文本绑定，v-bind用于标签属性绑定
+  <a v-bind:href="item.id">{{ item.title }}</a>
+  ```
+
+- 在布尔特性的情况下，它们的存在即暗示为true , v-bind工作起来略有不同，在这个例子中：
+
+  ```javascript
+  <button v-bind:disabled="isButtonDisabled">Button</button>
+  ```
+
+  如果isButtonDisabled的值是null、undefined或者false ，则disabbled特性甚至不会被包含在渲染出来的<button>元素中
+
+### 使用javascript表达式
+
+- Vue.js都提供了完全的javascript表达式支持
+
+  ```javascript
+  {{ number + 1 }}
+  {{ ok ? 'YES' : 'NO'}}
+  {{ message.split('').reverse().join('') }}
+  ```
+
+- 有个限制就是，每个绑定都只能包含单个表达式，所以下面的例子都不会生效
+
+  ```javascript
+  # 这是语句 不是表达式
+  {{ var a = 1 }}
+  
+  #流控制也不会生效，请使用三元表达式
+  {{ if(ok) {return message} }}
+  ```
+
+- 模板表达式都被放在沙盒中，只能访问全局变量的一个白名单，如Math和Date，你不应该在模板表达式中试图访问用户定义的全局变量
+
+## 指令
+
+### 概念和语法
+
+- 指令(Directives)是带有V-前缀的特殊属性。
+
+- 指令属性的值预期是单个javascript表达式（v-for是例外情况）
+
+- 指令的职责是当表达式的值改变时，将其产生的连带影响，响应式的作用于DOM
+
+  ```javascript
+  v-if #条件渲染
+  v-for #列表渲染
+  v-on #注册事件
+  v-bind #属性绑定
+  v-once #只绑定一次
+  v-html #绑定输出HTML
+  ```
+
+  
+
+  - 例如
+
+    ```javascript
+    <div id="app">
+        <p v-if="true">你能看见我</p> #true表示能在页面看见这句话
+      	<p v-if=”false“>你看不见我</p>  #false在页面中看不到这句话
+    </div>
+    ```
+
+    这里的v-if指令将根据表达式seen的值的真假来插入或者移除P元素
+
+
+
+#### 指令参数
+
+- 一些指令能够接受一些参数，在指令名称后面以冒号表示。
+
+- 例如，v-bind 指令可以用于响应式更新HTML属性，v-on 指令，它用于监听DOM事件：
+
+  ```javascript
+  # 这里的href是参数，告知v-bind指令将该元素的href属性与表达式url的值绑定
+  <a v-bind:href="url">......</a>
+  ```
+
+  ```javascript
+  #在这里参数是监听的事件名，
+  <a v-on:click="dosomething">....</a>
+  
+  ```
+
+#### 指令修饰符
+
+- 一些指令还可以添加指令修饰符，修饰符（Modifies）是以半角句号`.`指明的特殊后缀，用于指出一个指令应该以特殊方式绑定。例如：`.prevent`修饰符告诉v-on指令对于触发的事件调用`event.preventDefault()`。
+
+  ```javascript
+  <form v-on:sumit.prevent="orSubmit">......</form>
+  ```
+
+#### 指令缩写
+
+- `v-`前缀作为一种视觉提示，用来识别模板中Vue特定的特性。
+
+- 当在使用vue.js为现有标签添加动态行为（dynamic behavior）时，`v-`前缀很有帮助，然而，对于一些频繁用到的指令来说，就会感到使用繁琐。
+
+- 同时，在构建由Vue.js管理所有模板的单页面应用程序（SPA-single page application）时，`v-`前缀也会变得没那么重要了。
+
+- 因此，vue.js为**V-bind**和**v-on**这两个最常用的指令，提供了特定简写：
+
+  - `v-bind`缩写：
+
+    ```javascript
+    # 完整语法
+    <a v-bind:href="url">。。。。</a>
+    # 缩写
+    <a :href="url"></a>
+    ```
+
+    
+
+  - `v-on`缩写:
+
+    ```javascript
+    # 完整语法
+    <a v-on:click="dosomething">....</a>
+    #缩写
+    <a @:click="dosomething">....</a>
+    ```
+
+    
+
+    
 
 - vue实例的生命周期
   - 什么是生命周期：从Vue实例创建，运行，到销毁期间，总是伴随着各种各样的事件，这些事件，统称为生命周期！
