@@ -384,4 +384,190 @@
 
   - 组件化：是从UI界面的角度进行划分的: 前端的组件化，方便UI组件的重用
 
+ # VUE组件
+
+## 定义Vue组件
+
+- 什么是组件：组件的出现，就是为了拆分Vue实例的代码量的，能够让我们以不同的组件，来划分不同的功能模块，将来我们需要什么样的功能，就可以去调用对应的组件即可
+
+- 组件化和模块化的不同：
+
+  - 模块化：是从代码逻辑的角度进行划分的，方便代码分层开发，保证每个功模块的职能单一
+
+  - 组件化：是从UI界面的角度进行划分的: 前端的组件化，方便UI组件的重用
+
     
+
+## 全局组件定义的三种方式
+
+1.使用Vue.extend配合Vue.component方法：
+
+```javascript
+#定义组件的时候，如果要定义全局的组件，使用Vue.component(’组件的名称‘ , '组件的模板对象')
+Vue.component('login', login)
+
+#通过对象字面量的形式，定义了一个组件模板对象
+const login = Vue.extend({
+  template: '<h1>登录</h1>'
+});
+
+
+```
+
+2.直接使用Vue.component方法：
+
+```javascript
+#定义全局组件的方法 => Vue.component('组件的名称', ‘组件的模板对象’)
+Vue.component('register', {
+  template: '<h1>注册</h1>'
+})
+```
+
+3.将模板字符串，定义到script标签中：
+
+```javascript
+<script id="tmpl" type="x-template">
+  <div><a href="">登录</a> | <a href="#">注册</a></div>
+</script>
+```
+
+同时，需要使用Vue.component来定义组件：
+
+```javascript
+Vue.component('account', {
+  template: '#tmpl'
+})
+```
+
+> 这里需要注意的是，组件中的DOM结构，有且只有唯一的根元素（Root Element）来进行包裹！
+
+## 组件中展示数据和响应事件
+
+1.在组件中，data需要被定义一个方法，例如：
+
+```javascript
+Vue.component('account', {
+  template: '#tmpl',
+  # 这里的data必须定义为一个方法并返回一个对象
+  data(){
+    return {
+      msg: '大家好'
+    }
+  },
+  methods:{
+    login(){
+      alert('点击了登录按钮')
+    }
+  }
+})
+```
+
+2.在子组件中，如果将模板字符串，定义到了script标签中，那么，在访问子组件身上的data属性中的值，需要使用this来访问。
+
+> 为什么组件中的data必须定义为一个方法并返回一个对象？
+>
+> 因为data中如果直接定义对象，那么这个对象就被定死了，但是定义了一个方法后，每次都会返回一个新的对象
+
+## 使用components属性定义一个局部子组件
+
+1.组件实例定义方法：
+
+```javascript
+<script>
+  //创建Vue实例，得到ViewModel
+  const vm = new Vue({
+    el : '#app',
+    data : {},
+    methods: {},
+    components: { //定义子组件
+      account: { //定义account组件
+        template: '<div><h1>这是Account组件{{name}}</h1><login></login></div>' //在这里定义使用的子组件
+        components: { //定义子组件的子组件
+        login: { //login组件
+        	template: "<h3>这是登录组件</h3>”
+         }
+        }
+      }
+    }
+  })
+</script>
+```
+
+2.引用组件
+
+```javascript
+<div id="app">
+  	<account></account>
+</div>
+```
+
+## 使用flag标识符结合V-if和v-else切换组件
+
+1.页面结构
+
+```javascript
+<div id="#app">
+  <input type="button" value="toggle" @click="flag=!flag">
+  <myCom1 v-if="flag"></myCom1>
+	<myCom1 v-else="flag"></myCom1>
+</div>
+```
+
+2.Vue实例定义：
+
+```javascript
+<script>
+    Vue.component('myCom1', {
+    template: '<h3>第一个组件</h3>'
+    })
+
+   Vue.component('myCom1',{
+    template:'<h3>第二个组件</h3>'
+   })
+
+	 const vm = new Vue({
+    el: '#app',
+    data: {},
+    methods: {},
+    components: {}
+  })
+</script>
+```
+
+## 使用：is属性来切换不同的子组件，并添加切换动画
+
+1.组件实例定义方式：
+
+```javascript
+const login = Vue.extend({
+  template: `<div><h3>登录组件</h3></div>`
+})
+Vue.component('login', login)
+
+const register = Vue.extend({
+  template: `<div><h3>注册组件</h3></div>`
+})
+Vue.component('register', register)
+
+const vm = new Vue({
+  el: '#app',
+  data: {},
+  methods: {}
+})
+```
+
+2.使用component标签，来引用标签，并通过：is属性来指定要加载的组件：
+
+```javascript
+<div id="app">
+  # @click.prevent的后面的.prevent是修饰符，用来阻止默认事件 ，这里是阻止a标签不要跳转
+  <a href="" @click.prevent="comName='login'">登录</a>
+  <a href="" @click.prevent="comName='register'">注册</a>
+	<hr>
+  # transition标签是用来动画的包裹 mode是
+  <transition mode="out-in">
+    <component :is="comName"></component>
+  </transition>
+<div>
+```
+
