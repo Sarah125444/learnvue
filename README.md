@@ -570,6 +570,65 @@ const vm = new Vue({
   </transition>
 <div>
 ```
+
+
+
+# VUE路由
+
+## 什么是路由？
+
+### 后端路由
+
+- 对于普通的网站，所有的超链接都是URL地址，所有的URL地址都对应服务器上的资源
+
+### 前端路由
+
+- 对于单页面应用程序来说，主要通过URL中的hash（#号）来实现不同页面之间的切换，同时，hash有一个特点：HTTP请求中不会包含hash相关的内容，所以，单页面程序中的页面跳转用hash实现
+- 在单页面引用程序中，这种通过hash改变来切换页面的方式，称做前端路由（区别后端路由）
+
+## 在VUE中使用vue-router
+
+```javascript
+ # 1.安装Vue-router路由模块  
+<script src="./node_modules/vue-router/dist/vue-router.js"></script>
+
+# 组件的模板对象
+const login = {
+  template: '<h1>登录组件</h1>'
+}
+
+const register = {
+  template: '<h1>注册组件</h1>'
+}
+
+
+ # 2.创建一个路由对象，当导入vue-router包之后，在window全局对象中，就有了一个路由的构造函数，叫做VueRouter
+const routeObj = new VueRouter({
+  #route 这个配置对象中的route 表示路由匹配规则的意思
+  routes: [  
+  # 每个路由规则，都是一个对象，这个规则对象，身上有两个必须的属性
+  # 属性1是path,表示监听哪个路由链接地址
+  # 属性2是component，表示如果路由是前面匹配到的path,则表示component属性对应的那个组件
+  # 注意：component的属性值，必须是一个组件的模板对象，不能是组件的引用名称
+    { path:'/', redirect: '/login'},
+    { path: '/login', component: login},
+    { path: '/register', component: register}
+  ]
+})
+
+const vm = new Vue({
+  el: '#app',
+  data: {},
+  methods: {},
+  router: routerObj #3.将上面创建的路由对象，注册到VM实例上，用来监听到URL地址的变化，然后展示对应的组件
+})
+
+
+```
+
+
+
+
 ## 在网页中会引用哪些常见的静态资源？
 
 - JS
