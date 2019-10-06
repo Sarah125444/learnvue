@@ -570,4 +570,102 @@ const vm = new Vue({
   </transition>
 <div>
 ```
+## 在网页中会引用哪些常见的静态资源？
+
+- JS
+
+  - .js 
+  - .jsx
+  - .coffee
+  - .ts(Typescript)
+
+- CSS
+
+  - .css
+  - .less
+  - .sass (.scss)
+
+- Image
+
+  - .jpg
+  - .png
+  - .gif
+  - .bmp
+  - .svg
+
+- 字体文件
+
+  - .svg
+  - .ttf
+  - .woff
+  - .woff2
+
+- 模板文件
+
+  - .ejs
+
+  - .jade
+
+  - .vue[这是在webpack中定义组件的方式，推荐这么用] 
+
+    
+
+## 网页中引入的静态资源多了以后有什么问题？
+
+1.网页加载速度慢，因为我们要发起很多的二次请求
+
+2.要处理错综复杂的依赖关系
+
+
+
+## 如何解决上述的两个问题？
+
+1.合并，压缩，精灵图，图片的base64编码
+
+2.可以使用之前学过的requireJS，也可以使用webpack可以解决各个包之间的复杂依赖关系
+
+## 什么是webpack?
+
+- webpack是前端的一个项目构建工具，它是基于Node.js开发出来的一个前端工具
+- webpack是基于整个项目进行构建的
+- 借助于webpack整个前端自动化工具构建工具，可以完美实现资源的合并，打包，压缩，混淆等诸多功能
+
+## webpack安装的两种方式
+
+- 运行`npm i webpack -g`全局安装webpack，这样就能在全局使用webpack的命令
+
+- 运行`npm i webpack-cli -g`，新版本必须安装这个
+
+- 在全局安装完这个之后，再新建一个文件夹，执行下面的代码：
+
+  ```javascript
+  npm init -y
+  npm install --save-dev webpack
+  npm install --save-dev webpack-cli
+  npm install --save-dev webpack-dev-server
+  ```
+
+  - 上面的代码执行完之后，打开`package.json`这个文件，然后找到`scripts`这个选项，加上下面的代码:
+
+    ```javascript
+    "scripts": {
+        "start": "webpack --config webpack.config.js"
+    }
+    ```
+
+  - 根据上面的代码，重新建立一个文件`webpack-config.js`，里面写入以下代码：
+
+    ```javascript
+    const path = require('path')
+    
+    module.exports = {
+      entry: './src/main.js',
+      output: {
+        filename: 'bundle.js',
+        path: path.resolve(__dirname, 'dist')
+      }
+    }
+    ```
+
+  - 然后执行`webpack ./src/main.js -o ./dist/`boundle.js --mode=development`，就可以成功了
 
