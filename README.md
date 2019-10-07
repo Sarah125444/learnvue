@@ -573,6 +573,8 @@ const vm = new Vue({
 
 
 
+
+
 # VUE路由
 
 ## 什么是路由？
@@ -728,3 +730,17 @@ const vm = new Vue({
 
   - 然后执行`webpack ./src/main.js -o ./dist/`boundle.js --mode=development`，就可以成功了
 
+// 经过刚才的演示，webpack可以做什么？
+// 1.webpack能够处理JS文件的互相依赖关系
+// 2.webpack能够处理JS的兼容问题，把高级的浏览器不识别的语法，转为低级的浏览器能够正常识别的语法
+
+// 运行的命令格式：webpack ./src/main.js -o ./dist/bundle.js --mode="development"
+// 也就是：       webpack 要打包的文件路径 打包好的输出文件路径
+
+
+// 每次更新都需要重新输入`webpack`这个命令很麻烦，我们可以使用webpack-dev-server这个工具，来实现自动打包编译的功能
+//1.运行 npm i webpack-dev-server --save-dev把这个工具安装到项目的本地开发依赖
+//2.安装完毕后，这个工具的用法，和webpack命令的用法一样
+//3.但是由于我们是在项目中，本地安装的webpack-dev-server，所以，无法把它当做脚本命令。在powershell终端中直接运行；（只有那些安装到全局 -g的工具，才能在终端中正常运行）
+// 4.webpack-dev-server帮我们打包生成的bundle.js文件，并没有存放到实际的物理磁盘上，而是直接托管到了电脑端的内存中，所以，我们在项目根目录中，根本找不到这个打包好的bundle.js中
+// 5.我们可以认为，webpack-dev-server把打包好的文件，以一种虚拟的形式，托管到了我们项目的根目录中，虽然我们看不见它，但是，可以认为，和 dist,src,mode_module平级，有一个看不见的文件，叫做bundle.js
